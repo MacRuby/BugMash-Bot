@@ -79,13 +79,13 @@ describe "Trac" do
   end
 
   it "returns the status of a ticket" do
-    @trac.ticket_status(19).should == "Ticket #19 is unassigned."
+    @trac.ticket_status(19, "alloy").should == "Ticket #19 is unassigned."
     @trac.assign_ticket(19, "alloy")
-    @trac.ticket_status(19).should == "Ticket #19 is assigned to `alloy'."
+    @trac.ticket_status(19, "alloy").should == "Ticket #19 is assigned to `alloy'."
     @trac.mark_for_review(19, "alloy")
-    @trac.ticket_status(19).should == "Ticket #19 is assigned to `alloy' and marked for review."
+    @trac.ticket_status(19, "alloy").should == "Ticket #19 is assigned to `alloy' and marked for review."
     @trac.resign_from_ticket(19, "alloy")
-    @trac.ticket_status(19).should == "Ticket #19 is unassigned."
+    @trac.ticket_status(19, "alloy").should == "Ticket #19 is unassigned."
   end
 
   it "marks a ticket to be reviewed" do
@@ -135,6 +135,14 @@ describe "Trac" do
     @trac.mark_for_review(19, "alloy")
     @trac.marked_for_review.should == ["#19: Problems with method_missing (http://www.macruby.org/trac/ticket/19)", "#47: Cannot pass a :symbol directly as a named parameter (http://www.macruby.org/trac/ticket/47)", "#81: Enumerable::Enumerator seems to be broken (http://www.macruby.org/trac/ticket/81)"]
   end
+
+  it "returns a good message when a ticket is not open (anymore)" do
+    @trac.ticket_status(123456789, "alloy").should == "Ticket #123456789 is not an open ticket (anymore)."
+    @trac.assign_ticket(123456789, "alloy").should == "Ticket #123456789 is not an open ticket (anymore)."
+    @trac.resign_from_ticket(123456789, "alloy").should == "Ticket #123456789 is not an open ticket (anymore)."
+    @trac.mark_for_review(123456789, "alloy").should == "Ticket #123456789 is not an open ticket (anymore)."
+    @trac.unmark_for_review(123456789, "alloy").should == "Ticket #123456789 is not an open ticket (anymore)."
+  end
 end
 
 describe "Trac, after an update of the active tickets feed" do
@@ -152,7 +160,7 @@ describe "Trac, after an update of the active tickets feed" do
   end
 
   it "no longer gives a status for a ticket that's not in the active-tickets feed anymore" do
-    @trac.ticket_status(19).should == "Ticket #19 is not an open ticket (anymore)."
+    @trac.ticket_status(19, "alloy").should == "Ticket #19 is not an open ticket (anymore)."
   end
 
   it "no longer lists assigned tickets if they're not in the active-tickets feed anymore" do

@@ -8,6 +8,22 @@ class Trac
     # TODO
   end
 
+  # Defines an instance method that takes: ID, ticket, user
+  # This method, however, is wrapped inside a method that first checks if the
+  # ticket is available at all.
+  def self.define_ticket_method(name, &block)
+    real_method = "_#{name}"
+    define_method(real_method, &block)
+    private(real_method)
+    define_method(name) do |id, user|
+      if t = ticket(id)
+        send(real_method, id, t, user)
+      else
+        "Ticket ##{id} is not an open ticket (anymore)."
+      end
+    end
+  end
+
   attr_reader :active_tickets, :users
 
   def initialize
@@ -74,28 +90,26 @@ class Trac
     end
   end
 
-  def assign_ticket(id, user)
-    t = ticket(id)
-    if assigned_to = t[:assigned_to]
+  define_ticket_method :assign_ticket do |id, ticket, user|
+    if assigned_to = ticket[:assigned_to]
       if assigned_to == user
         "Ticket ##{id} is already assigned to `#{user}'."
       else
         "Ticket ##{id} can't be assigned to `#{user}', as it is already assigned to `#{assigned_to}'."
       end
     else
-      t[:assigned_to] = user
+      ticket[:assigned_to] = user
       @users[user] ||= []
-      @users[user] << t
+      @users[user] << ticket
       @users[user] = @users[user].sort_by { |x| x[:id] }
       "Ticket ##{id} is now assigned to `#{user}'."
     end
   end
 
-  def resign_from_ticket(id, user)
-    t = ticket(id)
-    if assigned_to = t[:assigned_to]
+  define_ticket_method :resign_from_ticket do |id, ticket, user|
+    if assigned_to = ticket[:assigned_to]
       if assigned_to == user
-        t[:assigned_to] = nil
+        ticket[:assigned_to] = nil
         "Ticket ##{id} was resigned by `#{user}'."
       else
         "Ticket #19 can't be unassigned by `#{user}', as it is assigned to `#{assigned_to}'."
@@ -105,23 +119,18 @@ class Trac
     end
   end
 
-  def ticket_status(id)
-    if t = ticket(id)
-      if user = t[:assigned_to]
-        "Ticket ##{id} is assigned to `#{user}'#{ ' and marked for review' if t[:marked_for_review] }."
-      else
-        "Ticket ##{id} is unassigned."
-      end
+  define_ticket_method :ticket_status do |id, ticket, _|
+    if user = ticket[:assigned_to]
+      "Ticket ##{id} is assigned to `#{user}'#{ ' and marked for review' if ticket[:marked_for_review] }."
     else
-      "Ticket ##{id} is not an open ticket (anymore)."
+      "Ticket ##{id} is unassigned."
     end
   end
 
-  def mark_for_review(id, user)
-    t = ticket(id)
-    assigned_to = t[:assigned_to]
+  define_ticket_method :mark_for_review do |id, ticket, user|
+    assigned_to = ticket[:assigned_to]
     if assigned_to == user
-      t[:marked_for_review] = true
+      ticket[:marked_for_review] = true
       "Ticket ##{id} is marked for review by `#{assigned_to}'."
     elsif !assigned_to.nil?
       "Ticket ##{id} can't be marked for review by `#{user}', as it is assigned to `#{assigned_to}'."
@@ -130,12 +139,11 @@ class Trac
     end
   end
 
-  def unmark_for_review(id, user)
-    t = ticket(id)
-    if t[:marked_for_review]
-      assigned_to = t[:assigned_to]
+  define_ticket_method :unmark_for_review do |id, ticket, user|
+    if ticket[:marked_for_review]
+      assigned_to = ticket[:assigned_to]
       if assigned_to == user
-        t[:marked_for_review] = nil
+        ticket[:marked_for_review] = nil
         "Ticket ##{id} is un-marked for review by `#{assigned_to}'."
       else
         "Ticket ##{id} can't be un-marked for review by `#{user}', as it is assigned to `#{assigned_to}'."
