@@ -73,4 +73,17 @@ describe "Trac" do
     @trac.resign_from_ticket(19, "alloy")
     @trac.ticket_status(19).should == "Ticket #19 is unassigned."
   end
+
+  it "marks a ticket to be reviewed" do
+    @trac.mark_for_review(19, "alloy").should == "Ticket #19 is unassigned."
+    @trac.ticket(19)[:marked_for_review].should == nil
+
+    @trac.assign_ticket(19, "lrz")
+
+    @trac.mark_for_review(19, "alloy").should == "Ticket #19 is assigned to `lrz'."
+    @trac.ticket(19)[:marked_for_review].should == nil
+
+    @trac.mark_for_review(19, "lrz").should == "Ticket #19 is marked for review by `lrz'."
+    @trac.ticket(19)[:marked_for_review].should == true
+  end
 end

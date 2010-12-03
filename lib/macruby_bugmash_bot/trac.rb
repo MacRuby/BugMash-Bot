@@ -61,4 +61,17 @@ class Trac
       "Ticket ##{id} is unassigned."
     end
   end
+
+  def mark_for_review(id, user)
+    t = ticket(id)
+    assigned_to = t[:assigned_to]
+    if assigned_to == user
+      t[:marked_for_review] = true
+      "Ticket ##{id} is marked for review by `#{assigned_to}'."
+    elsif !assigned_to.nil?
+      "Ticket ##{id} is assigned to `#{assigned_to}'."
+    else
+      "Ticket ##{id} is unassigned."
+    end
+  end
 end
