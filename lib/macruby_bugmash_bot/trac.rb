@@ -55,16 +55,8 @@ class Trac
 
   # Returns a ticket that nobody is working on yet, in ascending order.
   def open_ticket
-    ot = nil
-    @active_tickets.keys.sort.each do |id|
-      t = ticket(id)
-      unless t[:assigned_to]
-        ot = t
-        break
-      end
-    end
-    if ot
-      "Ticket available #{ticket_message(ot[:id])}"
+    if ot = DB.random_open_ticket
+      "Ticket available #{_ticket_message(ot)}"
     else
       "There are no more open tickets! \o/"
     end

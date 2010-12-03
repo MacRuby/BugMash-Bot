@@ -2,8 +2,6 @@ require "rubygems"
 require "bacon"
 Bacon.summary_at_exit
 
-require "fileutils"
-
 $:.unshift File.expand_path("../../lib", __FILE__)
 require "macruby_bugmash_bot/trac"
 
@@ -17,7 +15,7 @@ end
 
 class DB
   def self.db_path
-    @db_path ||= "/tmp/bugmash-bot-test-#{Time.now.to_i}.sqlite3"
+    # in memory
   end
 
   def self.stubbed_feed=(xml)
@@ -40,32 +38,27 @@ describe "Trac" do
     @trac = Trac.new
   end
 
-  #it "parses the raw RSS feed" do
-    #@trac.active_tickets[189][:id].should == 189
-    #@trac.active_tickets[189][:summary].should == "#189: Bugs with: Class#dup & Object#dup"
-    #@trac.active_tickets[105][:id].should == 105
-    #@trac.active_tickets[105][:summary].should == "#105: BridgeSupport can't convert KCGSessionEventTap as an argument for CGEventTapCreate"
-  #end
-
   it "returns a ticket by ID" do
     @trac.ticket(105)[:id].should == 105
     @trac.ticket(105)[:summary].should == "#105: BridgeSupport can't convert KCGSessionEventTap as an argument for CGEventTapCreate"
   end
 
-  # Make random
-  #it "returns a ticket that nobody is working on yet, in ascending ID order" do
-    #@trac.open_ticket.should == "Ticket available #19: Problems with method_missing (http://www.macruby.org/trac/ticket/19)"
-    #@trac.open_ticket.should == "Ticket available #19: Problems with method_missing (http://www.macruby.org/trac/ticket/19)"
-    #@trac.assign_ticket(19, "alloy")
-    #@trac.open_ticket.should == "Ticket available #47: Cannot pass a :symbol directly as a named parameter (http://www.macruby.org/trac/ticket/47)"
-    #@trac.open_ticket.should == "Ticket available #47: Cannot pass a :symbol directly as a named parameter (http://www.macruby.org/trac/ticket/47)"
-    #@trac.assign_ticket("47", "alloy")
-    #@trac.open_ticket.should == "Ticket available #81: Enumerable::Enumerator seems to be broken (http://www.macruby.org/trac/ticket/81)"
-    #@trac.open_ticket.should == "Ticket available #81: Enumerable::Enumerator seems to be broken (http://www.macruby.org/trac/ticket/81)"
+  it "returns a ticket that nobody is working on yet, in ascending ID order" do
+    @trac.assign_ticket("19", "alloy")
+    100.times do
+      @trac.open_ticket.should.not == "Ticket available #19: Problems with method_missing (http://www.macruby.org/trac/ticket/19)"
+    end
 
-    #@trac.active_tickets.each { |_, t| t[:assigned_to] = "alloy" }
-    #@trac.open_ticket.should == "There are no more open tickets! \o/"
-  #end
+    DB.tickets.filter(:assigned_to => nil).each do |ticket|
+      DB.tickets.filter(:id => ticket[:id]).update(:assigned_to => 1)
+    end
+
+    @trac.resign_from_ticket("19", "alloy")
+    @trac.open_ticket.should == "Ticket available #19: Problems with method_missing (http://www.macruby.org/trac/ticket/19)"
+
+    @trac.assign_ticket("19", "alloy")
+    @trac.open_ticket.should == "There are no more open tickets! \o/"
+  end
 
   it "assigns a ticket to a user" do
     @trac.assign_ticket("19", "alloy").should == "Ticket #19 is now assigned to `alloy'."
@@ -186,5 +179,3 @@ describe "Trac, after an update of the active tickets feed" do
     @trac.marked_for_review.should == ["There is currently 1 ticket marked for review:", "#105: BridgeSupport can't convert KCGSessionEventTap as an argument for CGEventTapCreate (http://www.macruby.org/trac/ticket/105)"]
   end
 end
-
-FileUtils.rm(DB.db_path)
