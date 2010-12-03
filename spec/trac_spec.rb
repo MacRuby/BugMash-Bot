@@ -121,8 +121,8 @@ describe "Trac" do
     @trac.assign_ticket(81, "alloy")
     @trac.assign_ticket(47, "lrz")
     @trac.assign_ticket(19, "alloy")
-    @trac.user("lrz").should == ["#47: Cannot pass a :symbol directly as a named parameter (http://www.macruby.org/trac/ticket/47)"]
-    @trac.user("alloy").should == ["#19: Problems with method_missing (http://www.macruby.org/trac/ticket/19)", "#81: Enumerable::Enumerator seems to be broken (http://www.macruby.org/trac/ticket/81)"]
+    @trac.user("lrz").should == ["You are currently working on 1 ticket:", "#47: Cannot pass a :symbol directly as a named parameter (http://www.macruby.org/trac/ticket/47)"]
+    @trac.user("alloy").should == ["You are currently working on 2 tickets:", "#19: Problems with method_missing (http://www.macruby.org/trac/ticket/19)", "#81: Enumerable::Enumerator seems to be broken (http://www.macruby.org/trac/ticket/81)"]
   end
 
   it "returns a list of tickets that are marked for review" do
@@ -133,7 +133,7 @@ describe "Trac" do
     @trac.mark_for_review(47, "lrz")
     @trac.assign_ticket(19, "alloy")
     @trac.mark_for_review(19, "alloy")
-    @trac.marked_for_review.should == ["#19: Problems with method_missing (http://www.macruby.org/trac/ticket/19)", "#47: Cannot pass a :symbol directly as a named parameter (http://www.macruby.org/trac/ticket/47)", "#81: Enumerable::Enumerator seems to be broken (http://www.macruby.org/trac/ticket/81)"]
+    @trac.marked_for_review.should == ["There are currently 3 tickets that are marked for review:", "#19: Problems with method_missing (http://www.macruby.org/trac/ticket/19)", "#47: Cannot pass a :symbol directly as a named parameter (http://www.macruby.org/trac/ticket/47)", "#81: Enumerable::Enumerator seems to be broken (http://www.macruby.org/trac/ticket/81)"]
   end
 
   it "returns a good message when a ticket is not open (anymore)" do
