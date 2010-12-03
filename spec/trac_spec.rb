@@ -39,14 +39,14 @@ describe "Trac" do
   end
 
   it "returns a ticket that nobody is working on yet, in ascending ID order" do
-    @trac.open_ticket.should == "Ticket available #19: Problems with method_missing"
-    @trac.open_ticket.should == "Ticket available #19: Problems with method_missing"
+    @trac.open_ticket.should == "Ticket available #19: Problems with method_missing (http://www.macruby.org/trac/ticket/19)"
+    @trac.open_ticket.should == "Ticket available #19: Problems with method_missing (http://www.macruby.org/trac/ticket/19)"
     @trac.assign_ticket(19, "alloy")
-    @trac.open_ticket.should == "Ticket available #47: Cannot pass a :symbol directly as a named parameter"
-    @trac.open_ticket.should == "Ticket available #47: Cannot pass a :symbol directly as a named parameter"
+    @trac.open_ticket.should == "Ticket available #47: Cannot pass a :symbol directly as a named parameter (http://www.macruby.org/trac/ticket/47)"
+    @trac.open_ticket.should == "Ticket available #47: Cannot pass a :symbol directly as a named parameter (http://www.macruby.org/trac/ticket/47)"
     @trac.assign_ticket(47, "alloy")
-    @trac.open_ticket.should == "Ticket available #81: Enumerable::Enumerator seems to be broken"
-    @trac.open_ticket.should == "Ticket available #81: Enumerable::Enumerator seems to be broken"
+    @trac.open_ticket.should == "Ticket available #81: Enumerable::Enumerator seems to be broken (http://www.macruby.org/trac/ticket/81)"
+    @trac.open_ticket.should == "Ticket available #81: Enumerable::Enumerator seems to be broken (http://www.macruby.org/trac/ticket/81)"
 
     @trac.active_tickets.each { |_, t| t[:assigned_to] = "alloy" }
     @trac.open_ticket.should == "There are no more open tickets! \o/"

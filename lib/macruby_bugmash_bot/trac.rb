@@ -43,7 +43,7 @@ class Trac
       end
     end
     if ot
-      "Ticket available #{ot[:summary]}"
+      "Ticket available #{ot[:summary]} (#{ot[:link]})"
     else
       "There are no more open tickets! \o/"
     end
