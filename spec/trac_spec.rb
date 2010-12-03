@@ -14,13 +14,18 @@ def fixture_read(name)
 end
 
 class Trac
+  def self.stubbed_feed=(xml)
+    @stubbed_feed = xml
+  end
+
   def self.raw_active_tickets_feed
-    fixture_read("trac_active_tickets_rss.xml")
+    @stubbed_feed
   end
 end
 
 describe "Trac" do
   before do
+    Trac.stubbed_feed = fixture_read("trac_active_tickets_rss.xml")
     @trac = Trac.new
   end
 
@@ -129,5 +134,33 @@ describe "Trac" do
     @trac.assign_ticket(19, "alloy")
     @trac.mark_for_review(19, "alloy")
     @trac.marked_for_review.should == ["#19: Problems with method_missing (http://www.macruby.org/trac/ticket/19)", "#47: Cannot pass a :symbol directly as a named parameter (http://www.macruby.org/trac/ticket/47)", "#81: Enumerable::Enumerator seems to be broken (http://www.macruby.org/trac/ticket/81)"]
+  end
+end
+
+describe "Trac, after an update of the active tickets feed" do
+  before do
+    Trac.stubbed_feed = fixture_read("trac_active_tickets_rss.xml")
+    @trac = Trac.new
+    @trac.assign_ticket(81, "alloy")
+    @trac.mark_for_review(81, "alloy")
+    @trac.assign_ticket(47, "lrz")
+    @trac.mark_for_review(47, "lrz")
+    @trac.assign_ticket(19, "alloy")
+
+    Trac.stubbed_feed = fixture_read("trac_active_tickets_rss-minus-19-and-81.xml")
+    @trac.load_tickets!
+  end
+
+  it "no longer gives a status for a ticket that's not in the active-tickets feed anymore" do
+    @trac.ticket_status(19).should == "Ticket #19 is not an open ticket (anymore)."
+  end
+
+  it "no longer lists assigned tickets if they're not in the active-tickets feed anymore" do
+    @trac.user("alloy").should == ["You don't have any tickets assigned."]
+    @trac.user("lrz").should == ["#47: Cannot pass a :symbol directly as a named parameter (http://www.macruby.org/trac/ticket/47)"]
+  end
+
+  it "no longer lists tickets to be reviewed if they're not in the active-tickets feed anymore" do
+    @trac.marked_for_review.should == ["#47: Cannot pass a :symbol directly as a named parameter (http://www.macruby.org/trac/ticket/47)"]
   end
 end

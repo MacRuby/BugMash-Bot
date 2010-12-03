@@ -22,6 +22,10 @@ class Trac
       h[id] = { :id => id, :link => entry[:link], :summary => CGI.unescapeHTML(entry[:title]) }
       h
     end
+    # clean assigned/marked tickets
+    @users.each do |name, tickets|
+      tickets.reject! { |t| @active_tickets[t[:id]].nil? }
+    end
   end
 
   def ticket(id)
@@ -34,7 +38,7 @@ class Trac
   end
 
   def user(name)
-    if tickets = @users[name]
+    if (tickets = @users[name]) && !tickets.empty?
       tickets.map { |t| ticket_message(t[:id]) }
     else
       ["You don't have any tickets assigned."]
@@ -43,7 +47,9 @@ class Trac
 
   def marked_for_review
     result = []
-    @active_tickets.each { |id, t| result << id if t[:marked_for_review] }
+    @users.each do |_, tickets|
+      tickets.each { |t| result << t[:id] if t[:marked_for_review] }
+    end
     if result.empty?
       ["There are currently no open tickets marked for review."]
     else
@@ -100,11 +106,14 @@ class Trac
   end
 
   def ticket_status(id)
-    t = ticket(id)
-    if user = t[:assigned_to]
-      "Ticket ##{id} is assigned to `#{user}'#{ ' and marked for review' if t[:marked_for_review] }."
+    if t = ticket(id)
+      if user = t[:assigned_to]
+        "Ticket ##{id} is assigned to `#{user}'#{ ' and marked for review' if t[:marked_for_review] }."
+      else
+        "Ticket ##{id} is unassigned."
+      end
     else
-      "Ticket ##{id} is unassigned."
+      "Ticket ##{id} is not an open ticket (anymore)."
     end
   end
 
