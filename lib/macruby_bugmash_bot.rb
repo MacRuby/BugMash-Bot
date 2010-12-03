@@ -1,3 +1,4 @@
+# encoding: UTF-8
 $:.unshift File.expand_path("../../vendor/cinch/lib", __FILE__)
 require "cinch"
 require "macruby_bugmash_bot/trac"
@@ -11,8 +12,19 @@ bot = Cinch::Bot.new do
     @trac = Trac.new
   end
 
-  on :channel, "hello" do |m|
-    m.reply "Hello, #{m.user.nick}"
+  HELP = [
+    "‘!gimme’ This command will tell you of a single ticket that is available.",
+    "‘!work <id>’ This command tells the bot that you are now working on a ticket.",
+    "‘!stop <id>’ This command tells the bot that you are no longer working on a ticket.",
+    "‘!status <id>’ This command asks the bot the status of a particular ticket. It will respond by saying who's working on it.",
+    "‘!review <id>’ Marks the ticket for review. MacRuby core will monitor this to see what's ready to be reviewed.",
+    "‘!unreview <id>’ Unmarks the ticket to be reviewed.",
+    "‘!me’ Private messages you telling you the number of tickets you're working on and lists them off.",
+    "‘!marked’ Private messages you telling you what the tickets are that are ready to be reviewed."
+  ]
+
+  on :channel, "!help" do |m|
+    HELP.each { |msg| m.user.send(msg) }
   end
 
   on :channel, "!gimme" do |m|
@@ -45,7 +57,7 @@ bot = Cinch::Bot.new do
     end
   end
 
-  on :message, "!marked_for_review" do |m|
+  on :message, "!marked" do |m|
     @trac.marked_for_review.each do |msg|
       m.user.send(msg)
     end
