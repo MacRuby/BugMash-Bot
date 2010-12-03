@@ -23,18 +23,13 @@ class Trac
     DB.ticket(id)
   end
 
-  def ticket_message(id)
-    t = ticket(id)
-    "#{t[:summary]} (#{t[:link]})"
-  end
-
-  def _ticket_message(t)
+  def ticket_message(t)
     "#{t[:summary]} (#{t[:link]})"
   end
 
   def user(name)
     if (tickets = DB.user_tickets(name)) && !tickets.empty?
-      result = tickets.map { |t| _ticket_message(t) }
+      result = tickets.map { |t| ticket_message(t) }
       result.unshift("You are currently working on #{pluralize(result.size, 'ticket')}:")
       result
     else
@@ -47,7 +42,7 @@ class Trac
     if result.empty?
       ["There are currently no open tickets marked for review."]
     else
-      result = result.map { |t| _ticket_message(t) }
+      result = result.map { |t| ticket_message(t) }
       result.unshift("There #{result.size == 1 ? 'is' : 'are'} currently #{pluralize(result.size, 'ticket')} marked for review:")
       result
     end
@@ -56,7 +51,7 @@ class Trac
   # Returns a ticket that nobody is working on yet, in ascending order.
   def open_ticket
     if ot = DB.random_open_ticket
-      "Ticket available #{_ticket_message(ot)}"
+      "Ticket available #{ticket_message(ot)}"
     else
       "There are no more open tickets! \o/"
     end
