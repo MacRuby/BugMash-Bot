@@ -20,7 +20,8 @@ module Trac
 end
 
 describe "Trac" do
-  it "creates a hash out of the raw RSS feed" do
-    Trac.active_tickets[189][:summary].should == "Bugs with: Class#dup & Object#dup"
+  it "parses the raw RSS feed" do
+    Trac.active_tickets[189][:summary].should == "#189: Bugs with: Class#dup & Object#dup"
+    Trac.active_tickets[105][:summary].should == "#105: BridgeSupport can't convert KCGSessionEventTap as an argument for CGEventTapCreate"
   end
 end
