@@ -30,8 +30,10 @@ class Trac
 
   # Returns a ticket that nobody is working on yet, in ascending order.
   def open_ticket
-    id = @active_tickets.keys.sort.first
-    @active_tickets[id]
+    @active_tickets.keys.sort.each do |id|
+      t = ticket(id)
+      break t unless t[:assigned_to]
+    end
   end
 
   def assign_ticket(id, user)
@@ -39,5 +41,15 @@ class Trac
     t = ticket(id)
     t[:assigned_to] = user
     @users[user] << t
+  end
+
+  def resign_from_ticket(id, user)
+    t = ticket(id)
+    if t[:assigned_to] == user
+      t[:assigned_to] = nil
+      "Ticket ##{id} was resigned by `#{user}'."
+    else
+      "Ticket ##{id} was never assigned to `#{user}'."
+    end
   end
 end

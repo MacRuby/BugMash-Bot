@@ -40,6 +40,13 @@ describe "Trac" do
 
   it "returns a ticket that nobody is working on yet, in ascending ID order" do
     @trac.open_ticket[:id].should == 19
+    @trac.open_ticket[:id].should == 19
+    @trac.assign_ticket(19, "alloy")
+    @trac.open_ticket[:id].should == 47
+    @trac.open_ticket[:id].should == 47
+    @trac.assign_ticket(47, "alloy")
+    @trac.open_ticket[:id].should == 81
+    @trac.open_ticket[:id].should == 81
   end
 
   it "assigns a ticket to a user" do
@@ -50,5 +57,12 @@ describe "Trac" do
     @trac.ticket(47)[:assigned_to].should == "alloy"
 
     @trac.users["alloy"].should == [@trac.ticket(19), @trac.ticket(47)]
+  end
+
+  it "resigns a user from a ticket" do
+    @trac.resign_from_ticket(19, "alloy").should == "Ticket #19 was never assigned to `alloy'."
+    @trac.assign_ticket(19, "alloy")
+    @trac.resign_from_ticket(19, "alloy").should == "Ticket #19 was resigned by `alloy'."
+    @trac.ticket(19)[:assigned_to].should == nil
   end
 end
