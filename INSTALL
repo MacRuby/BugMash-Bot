@@ -1,0 +1,3 @@
+* git update --init
+* ruby19 ./bin/init
+* ruby19 ./bin/update-active-tickets

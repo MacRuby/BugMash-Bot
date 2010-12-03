@@ -1,0 +1,37 @@
+require "fileutils"
+require "rubygems"
+require "sequel"
+
+$:.unshift File.expand_path("../../vendor/simple-rss/lib", __FILE__)
+require "simple-rss"
+
+db = File.expand_path('../../data/db.sqlite3', __FILE__)
+FileUtils.mkdir_p(File.dirname(db))
+DB = Sequel.sqlite(db)
+
+class Ticket < Sequel::Model
+end
+
+#fixture = File.expand_path('../../spec/fixtures/trac_active_tickets_rss.xml', __FILE__)
+fixture = File.expand_path('../../spec/fixtures/trac_active_tickets_rss-minus-19-and-81.xml', __FILE__)
+raw_feed = File.read(fixture)
+
+rss = SimpleRSS.parse(raw_feed)
+ids = Ticket.filter(:closed => false).select(:id).all.map(&:id)
+seen = []
+
+rss.entries.each do |entry|
+  id = File.basename(entry[:link]).to_i
+  seen << id
+  unless Ticket.filter(:id => id).first
+    puts "does not exist!"
+    Ticket.insert(:id => id, :link => entry[:link], :summary => CGI.unescapeHTML(entry[:title]), :marked_for_review => false, :closed => false)
+  end
+end
+
+removed = ids - seen
+p removed
+
+removed.each do |id|
+  Ticket.filter(:id => id).update(:closed => true)
+end
