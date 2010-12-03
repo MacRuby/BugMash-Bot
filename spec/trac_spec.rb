@@ -63,8 +63,9 @@ describe "Trac" do
   end
 
   it "resigns a user from a ticket" do
-    @trac.resign_from_ticket(19, "alloy").should == "Ticket #19 was never assigned to `alloy'."
+    @trac.resign_from_ticket(19, "alloy").should == "Ticket #19 is already unassigned."
     @trac.assign_ticket(19, "alloy")
+    @trac.resign_from_ticket(19, "lrz").should == "Ticket #19 can't be unassigned by `lrz', as it is assigned to `alloy'."
     @trac.resign_from_ticket(19, "alloy").should == "Ticket #19 was resigned by `alloy'."
     @trac.ticket(19)[:assigned_to].should == nil
   end

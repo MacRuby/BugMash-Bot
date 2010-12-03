@@ -41,7 +41,6 @@ class Trac
   end
 
   def assign_ticket(id, user)
-    @users[user] ||= []
     t = ticket(id)
     if assigned_to = t[:assigned_to]
       if assigned_to == user
@@ -51,6 +50,7 @@ class Trac
       end
     else
       t[:assigned_to] = user
+      @users[user] ||= []
       @users[user] << t
       @users[user] = @users[user].sort_by { |x| x[:id] }
       "Ticket ##{id} is now assigned to `#{user}'."
@@ -59,11 +59,15 @@ class Trac
 
   def resign_from_ticket(id, user)
     t = ticket(id)
-    if t[:assigned_to] == user
-      t[:assigned_to] = nil
-      "Ticket ##{id} was resigned by `#{user}'."
+    if assigned_to = t[:assigned_to]
+      if assigned_to == user
+        t[:assigned_to] = nil
+        "Ticket ##{id} was resigned by `#{user}'."
+      else
+        "Ticket #19 can't be unassigned by `#{user}', as it is assigned to `#{assigned_to}'."
+      end
     else
-      "Ticket ##{id} was never assigned to `#{user}'."
+      "Ticket ##{id} is already unassigned."
     end
   end
 
