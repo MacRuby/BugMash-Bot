@@ -1,3 +1,5 @@
+# encoding: UTF-8
+
 $:.unshift File.expand_path("../../../vendor/simple-rss/lib", __FILE__)
 require "simple-rss"
 require "net/http"
@@ -66,7 +68,9 @@ class Trac
 
   def user(name)
     if (tickets = @users[name]) && !tickets.empty?
-      tickets.map { |t| ticket_message(t[:id]) }
+      result = tickets.map { |t| ticket_message(t[:id]) }
+      result.unshift("You are currently working on #{pluralize(result.size, 'ticket')}:")
+      result
     else
       ["You don't have any tickets assigned."]
     end
@@ -80,7 +84,9 @@ class Trac
     if result.empty?
       ["There are currently no open tickets marked for review."]
     else
-      result.sort.map { |id| ticket_message(id) }
+      result = result.sort.map { |id| ticket_message(id) }
+      result.unshift("There #{result.size == 1 ? 'is' : 'are'} currently #{pluralize(result.size, 'ticket')} marked for review:")
+      result
     end
   end
 
@@ -161,6 +167,16 @@ class Trac
       end
     else
       "Ticket ##{id} isn't marked for review."
+    end
+  end
+
+  private
+
+  def pluralize(count, string)
+    if count == 1
+      "#{count} #{string}"
+    else
+      "#{count} #{string}s"
     end
   end
 end

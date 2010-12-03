@@ -1,4 +1,5 @@
 # encoding: UTF-8
+
 $:.unshift File.expand_path("../../vendor/cinch/lib", __FILE__)
 require "cinch"
 require "macruby_bugmash_bot/trac"
