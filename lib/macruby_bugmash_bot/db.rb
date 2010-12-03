@@ -69,11 +69,15 @@ class DB
   end
 
   def self.tickets_marked_for_review
-    DB.tickets.filter(:marked_for_review => true, :closed => false).order(:id).all
+    tickets.filter(:marked_for_review => true, :closed => false).order(:id).all
   end
 
   def self.random_open_ticket
-    tickets.filter(:assigned_to => nil).order('RAND()').first
+    t = tickets.filter(:assigned_to => nil).all
+    unless t.empty?
+      index = rand(t.size)
+      t[index]
+    end
   end
 
   OPEN_TICKETS_RSS_FEED = URI.parse("http://www.macruby.org/trac/query?status=new&status=reopened&format=rss&order=priority&col=id&col=summary&col=status&col=time&milestone=%21MacRuby+1.0&milestone=%21MacRuby+Later")
