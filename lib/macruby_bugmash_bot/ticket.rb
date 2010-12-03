@@ -77,7 +77,7 @@ class DB
     tickets.filter(:assigned_to => nil).order('RAND()').first
   end
 
-  OPEN_TICKETS_RSS_FEED = URI.parse("http://www.macruby.org/trac/query?status=new&status=reopened&format=rss&col=id&col=summary&col=status&col=time&order=priority&max=1000")
+  OPEN_TICKETS_RSS_FEED = URI.parse("http://www.macruby.org/trac/query?status=new&status=reopened&format=rss&order=priority&col=id&col=summary&col=status&col=time&milestone=%21MacRuby+1.0&milestone=%21MacRuby+Later")
 
   def self.raw_open_tickets_feed
     Net::HTTP.get(ACTIVE_TICKETS_RSS_FEED)
