@@ -38,7 +38,7 @@ class DB
   end
 
   def self.ticket(id)
-    tickets.filter(:id => id).first
+    tickets.filter(:id => id, :closed => false).first
   end
 
   def self.users
@@ -59,7 +59,7 @@ class DB
 
   def self.user_tickets(name)
     if user = users.filter(:name => name).first
-      tickets.filter(:assigned_to => user[:id]).all
+      tickets.filter(:assigned_to => user[:id], :closed => false).all
     end
   end
 
@@ -67,6 +67,10 @@ class DB
     if x = ticket(id)
       user(x[:assigned_to])
     end
+  end
+
+  def self.tickets_marked_for_review
+    DB.tickets.filter(:marked_for_review => true, :closed => false).order(:id).all
   end
 
   OPEN_TICKETS_RSS_FEED = URI.parse("http://www.macruby.org/trac/query?status=new&status=reopened&format=rss&col=id&col=summary&col=status&col=time&order=priority&max=1000")
@@ -85,7 +89,7 @@ class DB
       raw_feed.force_encoding('UTF-8') if raw_feed.respond_to?(:force_encoding)
 
       rss = SimpleRSS.parse(raw_feed)
-      open_ids = tickets.filter(:closed => false).select(:id).all.map(&:id)
+      open_ids = tickets.filter(:closed => false).select(:id).all.map { |t| t[:id] }
       seen = []
 
       rss.entries.each do |entry|

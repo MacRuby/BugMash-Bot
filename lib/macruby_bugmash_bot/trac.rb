@@ -20,7 +20,7 @@ class Trac
   end
 
   def ticket(id)
-    DB.tickets.filter(:id => id).first
+    DB.ticket(id)
   end
 
   def ticket_message(id)
@@ -43,7 +43,7 @@ class Trac
   end
 
   def marked_for_review
-    result = DB.tickets.filter(:marked_for_review => true).order(:id).all
+    result = DB.tickets_marked_for_review
     if result.empty?
       ["There are currently no open tickets marked for review."]
     else
