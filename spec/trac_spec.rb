@@ -74,6 +74,8 @@ describe "Trac" do
     @trac.ticket_status(19).should == "Ticket #19 is unassigned."
     @trac.assign_ticket(19, "alloy")
     @trac.ticket_status(19).should == "Ticket #19 is assigned to `alloy'."
+    @trac.mark_for_review(19, "alloy")
+    @trac.ticket_status(19).should == "Ticket #19 is assigned to `alloy' and marked for review."
     @trac.resign_from_ticket(19, "alloy")
     @trac.ticket_status(19).should == "Ticket #19 is unassigned."
   end

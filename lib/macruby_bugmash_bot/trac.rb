@@ -74,7 +74,7 @@ class Trac
   def ticket_status(id)
     t = ticket(id)
     if user = t[:assigned_to]
-      "Ticket ##{id} is assigned to `#{user}'."
+      "Ticket ##{id} is assigned to `#{user}'#{ ' and marked for review' if t[:marked_for_review] }."
     else
       "Ticket ##{id} is unassigned."
     end
