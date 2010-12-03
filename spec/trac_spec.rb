@@ -31,7 +31,24 @@ describe "Trac" do
     @trac.active_tickets[105][:summary].should == "#105: BridgeSupport can't convert KCGSessionEventTap as an argument for CGEventTapCreate"
   end
 
+  it "returns a ticket by ID" do
+    @trac.ticket(189)[:id].should == 189
+    @trac.ticket(189)[:summary].should == "#189: Bugs with: Class#dup & Object#dup"
+    @trac.ticket(105)[:id].should == 105
+    @trac.ticket(105)[:summary].should == "#105: BridgeSupport can't convert KCGSessionEventTap as an argument for CGEventTapCreate"
+  end
+
   it "returns a ticket that nobody is working on yet, in ascending ID order" do
     @trac.open_ticket[:id].should == 19
+  end
+
+  it "assigns a ticket to a user" do
+    @trac.assign_ticket(19, "alloy")
+    @trac.ticket(19)[:assigned_to].should == "alloy"
+
+    @trac.assign_ticket(47, "alloy")
+    @trac.ticket(47)[:assigned_to].should == "alloy"
+
+    @trac.users["alloy"].should == [@trac.ticket(19), @trac.ticket(47)]
   end
 end
