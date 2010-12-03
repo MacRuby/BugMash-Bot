@@ -1,11 +1,12 @@
 $:.unshift File.expand_path("../../../vendor/simple-rss/lib", __FILE__)
 require "simple-rss"
+require "net/http"
 require "cgi"
 
 class Trac
-  # RSS feed: http://www.macruby.org/trac/query?status=new&status=reopened&format=rss&col=id&col=summary&col=status&col=time&order=priority&max=1000
+  ACTIVE_TICKETS_RSS_FEED = URI.parse("http://www.macruby.org/trac/query?status=new&status=reopened&format=rss&col=id&col=summary&col=status&col=time&order=priority&max=1000")
   def self.raw_active_tickets_feed
-    # TODO
+    Net::HTTP.get(ACTIVE_TICKETS_RSS_FEED)
   end
 
   # Defines an instance method that takes: ID, ticket, user
@@ -27,20 +28,29 @@ class Trac
   attr_reader :active_tickets, :users
 
   def initialize
+    @active_tickets = {}
     @users = {}
     load_tickets!
   end
 
   def load_tickets!
-    rss = SimpleRSS.parse(self.class.raw_active_tickets_feed)
-    @active_tickets = rss.entries.inject({}) do |h, entry|
-      id = File.basename(entry[:link]).to_i
-      h[id] = { :id => id, :link => entry[:link], :summary => CGI.unescapeHTML(entry[:title]) }
-      h
+    rss = nil
+    begin
+      rss = SimpleRSS.parse(self.class.raw_active_tickets_feed)
+      # obviously this is a bad thing to do, but I really don't want the bot to break this weekend due to HTTP problems...
+    rescue Exception => e
+      puts "[!] FETCHING THE MACRUBY TICKET FEED FAILED DUE TO: #{e.message}\n\t#{e.backtrace.join("\n\t")}"
     end
-    # clean assigned/marked tickets
-    @users.each do |name, tickets|
-      tickets.reject! { |t| @active_tickets[t[:id]].nil? }
+    if rss
+      @active_tickets = rss.entries.inject({}) do |h, entry|
+        id = File.basename(entry[:link]).to_i
+        h[id] = { :id => id, :link => entry[:link], :summary => CGI.unescapeHTML(entry[:title]) }
+        h
+      end
+      # clean assigned/marked tickets
+      @users.each do |name, tickets|
+        tickets.reject! { |t| @active_tickets[t[:id]].nil? }
+      end
     end
   end
 
