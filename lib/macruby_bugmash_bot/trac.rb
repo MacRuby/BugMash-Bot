@@ -41,6 +41,16 @@ class Trac
     end
   end
 
+  def marked_for_review
+    result = []
+    @active_tickets.each { |id, t| result << id if t[:marked_for_review] }
+    if result.empty?
+      ["There are currently no open tickets marked for review."]
+    else
+      result.sort.map { |id| ticket_message(id) }
+    end
+  end
+
   # Returns a ticket that nobody is working on yet, in ascending order.
   def open_ticket
     ot = nil
