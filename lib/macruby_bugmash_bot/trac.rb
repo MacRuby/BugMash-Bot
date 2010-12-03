@@ -52,4 +52,13 @@ class Trac
       "Ticket ##{id} was never assigned to `#{user}'."
     end
   end
+
+  def ticket_status(id)
+    t = ticket(id)
+    if user = t[:assigned_to]
+      "Ticket ##{id} is assigned to `#{user}'."
+    else
+      "Ticket ##{id} is unassigned."
+    end
+  end
 end

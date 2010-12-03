@@ -65,4 +65,12 @@ describe "Trac" do
     @trac.resign_from_ticket(19, "alloy").should == "Ticket #19 was resigned by `alloy'."
     @trac.ticket(19)[:assigned_to].should == nil
   end
+
+  it "returns the status of a ticket" do
+    @trac.ticket_status(19).should == "Ticket #19 is unassigned."
+    @trac.assign_ticket(19, "alloy")
+    @trac.ticket_status(19).should == "Ticket #19 is assigned to `alloy'."
+    @trac.resign_from_ticket(19, "alloy")
+    @trac.ticket_status(19).should == "Ticket #19 is unassigned."
+  end
 end
