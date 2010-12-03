@@ -1,21 +1,8 @@
 # encoding: UTF-8
 
-$:.unshift File.expand_path("../../../vendor/simple-rss/lib", __FILE__)
-require "simple-rss"
-require "net/http"
-require "cgi"
+require "macruby_bugmash_bot/ticket"
 
 class Trac
-  ACTIVE_TICKETS_RSS_FEED = URI.parse("http://www.macruby.org/trac/query?status=new&status=reopened&format=rss&col=id&col=summary&col=status&col=time&order=priority&max=1000")
-
-  def self.raw_active_tickets_feed
-    Net::HTTP.get(ACTIVE_TICKETS_RSS_FEED)
-  rescue Exception => e
-    # obviously this is a bad thing to do, but I really don't want the bot to break this weekend due to HTTP problems...
-    puts "[!] FETCHING THE MACRUBY TICKET FEED FAILED DUE TO: #{e.message}\n\t#{e.backtrace.join("\n\t")}"
-    return nil
-  end
-
   # Defines an instance method that takes: ID, ticket, user
   # This method, however, is wrapped inside a method that first checks if the
   # ticket is available at all.
@@ -32,33 +19,34 @@ class Trac
     end
   end
 
-  attr_reader :active_tickets, :users
+  #attr_reader :active_tickets, :users
+  attr_reader :users
 
   def initialize
-    @active_tickets = {}
+    #@active_tickets = {}
     @users = {}
-    load_tickets!
+    #load_tickets!
   end
 
-  def load_tickets!
-    if raw_feed = self.class.raw_active_tickets_feed
-      # should not be too bad to force a ASCII string to UTF-8 afaik
-      raw_feed.force_encoding('UTF-8') if raw_feed.respond_to?(:force_encoding)
-      rss = SimpleRSS.parse(raw_feed)
-      @active_tickets = rss.entries.inject({}) do |h, entry|
-        id = File.basename(entry[:link]).to_i
-        h[id] = { :id => id, :link => entry[:link], :summary => CGI.unescapeHTML(entry[:title]) }
-        h
-      end
-      # clean assigned/marked tickets
-      @users.each do |name, tickets|
-        tickets.reject! { |t| @active_tickets[t[:id]].nil? }
-      end
-    end
-  end
+  #def load_tickets!
+    #if raw_feed = self.class.raw_active_tickets_feed
+      ## should not be too bad to force a ASCII string to UTF-8 afaik
+      #raw_feed.force_encoding('UTF-8') if raw_feed.respond_to?(:force_encoding)
+      #rss = SimpleRSS.parse(raw_feed)
+      #@active_tickets = rss.entries.inject({}) do |h, entry|
+        #id = File.basename(entry[:link]).to_i
+        #h[id] = { :id => id, :link => entry[:link], :summary => CGI.unescapeHTML(entry[:title]) }
+        #h
+      #end
+      ## clean assigned/marked tickets
+      #@users.each do |name, tickets|
+        #tickets.reject! { |t| @active_tickets[t[:id]].nil? }
+      #end
+    #end
+  #end
 
   def ticket(id)
-    @active_tickets[id.to_i]
+    Ticket.table.filter(:id => id).first
   end
 
   def ticket_message(id)
@@ -115,9 +103,9 @@ class Trac
         "Ticket ##{id} can't be assigned to `#{user}', as it is already assigned to `#{assigned_to}'."
       end
     else
-      ticket[:assigned_to] = user
+      Ticket.table.filter(:id => id).update(:assigned_to => user)
       @users[user] ||= []
-      @users[user] << ticket
+      @users[user] << ticket(id)
       @users[user] = @users[user].sort_by { |x| x[:id] }
       "Ticket ##{id} is now assigned to `#{user}'."
     end
@@ -126,7 +114,7 @@ class Trac
   define_ticket_method :resign_from_ticket do |id, ticket, user|
     if assigned_to = ticket[:assigned_to]
       if assigned_to == user
-        ticket[:assigned_to] = nil
+        Ticket.table.filter(:id => id).update(:assigned_to => nil)
         "Ticket ##{id} was resigned by `#{user}'."
       else
         "Ticket #19 can't be unassigned by `#{user}', as it is assigned to `#{assigned_to}'."
@@ -147,7 +135,7 @@ class Trac
   define_ticket_method :mark_for_review do |id, ticket, user|
     assigned_to = ticket[:assigned_to]
     if assigned_to == user
-      ticket[:marked_for_review] = true
+      Ticket.table.filter(:id => id).update(:marked_for_review => true)
       "Ticket ##{id} is marked for review by `#{assigned_to}'."
     elsif !assigned_to.nil?
       "Ticket ##{id} can't be marked for review by `#{user}', as it is assigned to `#{assigned_to}'."
@@ -160,7 +148,7 @@ class Trac
     if ticket[:marked_for_review]
       assigned_to = ticket[:assigned_to]
       if assigned_to == user
-        ticket[:marked_for_review] = nil
+        Ticket.table.filter(:id => id).update(:marked_for_review => false)
         "Ticket ##{id} is unmarked for review by `#{assigned_to}'."
       else
         "Ticket ##{id} can't be unmarked for review by `#{user}', as it is assigned to `#{assigned_to}'."

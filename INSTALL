@@ -1,3 +1,4 @@
 * git update --init
+* sudo gem19 install sequel sqlite3-ruby
 * ruby19 ./bin/init
 * ruby19 ./bin/update-active-tickets
