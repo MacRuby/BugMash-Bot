@@ -1,4 +1,4 @@
-* git update --init
+* git submodule update --init
 * sudo gem19 install sequel sqlite3-ruby
 * rake init
 * rake update_open_tickets
