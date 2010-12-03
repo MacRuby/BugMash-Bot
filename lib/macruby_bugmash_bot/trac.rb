@@ -28,8 +28,17 @@ class Trac
     @active_tickets[id]
   end
 
+  def ticket_message(id)
+    t = ticket(id)
+    "#{t[:summary]} (#{t[:link]})"
+  end
+
   def user(name)
-    @users[name]
+    if tickets = @users[name]
+      tickets.map { |t| ticket_message(t[:id]) }
+    else
+      ["You don't have any tickets assigned."]
+    end
   end
 
   # Returns a ticket that nobody is working on yet, in ascending order.
@@ -43,7 +52,7 @@ class Trac
       end
     end
     if ot
-      "Ticket available #{ot[:summary]} (#{ot[:link]})"
+      "Ticket available #{ticket_message(ot[:id])}"
     else
       "There are no more open tickets! \o/"
     end

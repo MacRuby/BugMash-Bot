@@ -59,7 +59,7 @@ describe "Trac" do
     @trac.assign_ticket(47, "alloy").should == "Ticket #47 is now assigned to `alloy'."
     @trac.ticket(47)[:assigned_to].should == "alloy"
 
-    @trac.user("alloy").should == [@trac.ticket(19), @trac.ticket(47)]
+    @trac.users["alloy"].should == [@trac.ticket(19), @trac.ticket(47)]
 
     @trac.assign_ticket(19, "lrz").should == "Ticket #19 can't be assigned to `lrz', as it is already assigned to `alloy'."
     @trac.assign_ticket(19, "alloy").should == "Ticket #19 is already assigned to `alloy'."
@@ -111,12 +111,15 @@ describe "Trac" do
   end
 
   it "returns a list of messages about tickets the user is working on, sorted by ID" do
-    @trac.user("lrz").should == nil
-    @trac.user("alloy").should == nil
+    @trac.user("lrz").should == ["You don't have any tickets assigned."]
+    @trac.user("alloy").should == ["You don't have any tickets assigned."]
     @trac.assign_ticket(81, "alloy")
     @trac.assign_ticket(47, "lrz")
     @trac.assign_ticket(19, "alloy")
-    @trac.user("lrz").should == [@trac.ticket(47)]
-    @trac.user("alloy").should == [@trac.ticket(19), @trac.ticket(81)]
+    @trac.user("lrz").should == ["#47: Cannot pass a :symbol directly as a named parameter (http://www.macruby.org/trac/ticket/47)"]
+    @trac.user("alloy").should == ["#19: Problems with method_missing (http://www.macruby.org/trac/ticket/19)", "#81: Enumerable::Enumerator seems to be broken (http://www.macruby.org/trac/ticket/81)"]
+  end
+
+  it "returns a list of tickets that are marked for review" do
   end
 end
