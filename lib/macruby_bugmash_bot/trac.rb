@@ -1,6 +1,6 @@
 # encoding: UTF-8
 
-require "macruby_bugmash_bot/ticket"
+require "macruby_bugmash_bot/db"
 
 class Trac
   # Defines an instance method that takes: ID, ticket, user
