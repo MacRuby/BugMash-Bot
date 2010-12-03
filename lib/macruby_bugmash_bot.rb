@@ -5,7 +5,7 @@ require "macruby_bugmash_bot/trac"
 bot = Cinch::Bot.new do
   configure do |c|
     c.server   = "irc.freenode.org"
-    c.nick     = "MacRuby-BugMash-bot"
+    c.nick     = "BugMash-bot"
     c.channels = ["#cinch-bots"]
 
     @trac = Trac.new

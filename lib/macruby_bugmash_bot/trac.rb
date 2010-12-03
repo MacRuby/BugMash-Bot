@@ -40,6 +40,8 @@ class Trac
 
   def load_tickets!
     if raw_feed = self.class.raw_active_tickets_feed
+      # should not be too bad to force a ASCII string to UTF-8 afaik
+      raw_feed.force_encoding('UTF-8') if raw_feed.respond_to?(:force_encoding)
       rss = SimpleRSS.parse(raw_feed)
       @active_tickets = rss.entries.inject({}) do |h, entry|
         id = File.basename(entry[:link]).to_i
@@ -54,7 +56,7 @@ class Trac
   end
 
   def ticket(id)
-    @active_tickets[id]
+    @active_tickets[id.to_i]
   end
 
   def ticket_message(id)

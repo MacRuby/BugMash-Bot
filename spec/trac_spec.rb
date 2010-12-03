@@ -49,7 +49,7 @@ describe "Trac" do
     @trac.assign_ticket(19, "alloy")
     @trac.open_ticket.should == "Ticket available #47: Cannot pass a :symbol directly as a named parameter (http://www.macruby.org/trac/ticket/47)"
     @trac.open_ticket.should == "Ticket available #47: Cannot pass a :symbol directly as a named parameter (http://www.macruby.org/trac/ticket/47)"
-    @trac.assign_ticket(47, "alloy")
+    @trac.assign_ticket("47", "alloy")
     @trac.open_ticket.should == "Ticket available #81: Enumerable::Enumerator seems to be broken (http://www.macruby.org/trac/ticket/81)"
     @trac.open_ticket.should == "Ticket available #81: Enumerable::Enumerator seems to be broken (http://www.macruby.org/trac/ticket/81)"
 
@@ -58,7 +58,7 @@ describe "Trac" do
   end
 
   it "assigns a ticket to a user" do
-    @trac.assign_ticket(19, "alloy").should == "Ticket #19 is now assigned to `alloy'."
+    @trac.assign_ticket("19", "alloy").should == "Ticket #19 is now assigned to `alloy'."
     @trac.ticket(19)[:assigned_to].should == "alloy"
 
     @trac.assign_ticket(47, "alloy").should == "Ticket #47 is now assigned to `alloy'."
@@ -74,14 +74,14 @@ describe "Trac" do
     @trac.resign_from_ticket(19, "alloy").should == "Ticket #19 is already unassigned."
     @trac.assign_ticket(19, "alloy")
     @trac.resign_from_ticket(19, "lrz").should == "Ticket #19 can't be unassigned by `lrz', as it is assigned to `alloy'."
-    @trac.resign_from_ticket(19, "alloy").should == "Ticket #19 was resigned by `alloy'."
+    @trac.resign_from_ticket("19", "alloy").should == "Ticket #19 was resigned by `alloy'."
     @trac.ticket(19)[:assigned_to].should == nil
   end
 
   it "returns the status of a ticket" do
     @trac.ticket_status(19, "alloy").should == "Ticket #19 is unassigned."
     @trac.assign_ticket(19, "alloy")
-    @trac.ticket_status(19, "alloy").should == "Ticket #19 is assigned to `alloy'."
+    @trac.ticket_status("19", "alloy").should == "Ticket #19 is assigned to `alloy'."
     @trac.mark_for_review(19, "alloy")
     @trac.ticket_status(19, "alloy").should == "Ticket #19 is assigned to `alloy' and marked for review."
     @trac.resign_from_ticket(19, "alloy")
@@ -97,7 +97,7 @@ describe "Trac" do
     @trac.mark_for_review(19, "alloy").should == "Ticket #19 can't be marked for review by `alloy', as it is assigned to `lrz'."
     @trac.ticket(19)[:marked_for_review].should == nil
 
-    @trac.mark_for_review(19, "lrz").should == "Ticket #19 is marked for review by `lrz'."
+    @trac.mark_for_review("19", "lrz").should == "Ticket #19 is marked for review by `lrz'."
     @trac.ticket(19)[:marked_for_review].should == true
   end
 
@@ -111,7 +111,7 @@ describe "Trac" do
     @trac.unmark_for_review(19, "alloy").should == "Ticket #19 can't be un-marked for review by `alloy', as it is assigned to `lrz'."
     @trac.ticket(19)[:marked_for_review].should == true
 
-    @trac.unmark_for_review(19, "lrz").should == "Ticket #19 is un-marked for review by `lrz'."
+    @trac.unmark_for_review("19", "lrz").should == "Ticket #19 is un-marked for review by `lrz'."
     @trac.ticket(19)[:marked_for_review].should == nil
   end
 
