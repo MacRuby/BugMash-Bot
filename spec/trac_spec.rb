@@ -39,14 +39,17 @@ describe "Trac" do
   end
 
   it "returns a ticket that nobody is working on yet, in ascending ID order" do
-    @trac.open_ticket[:id].should == 19
-    @trac.open_ticket[:id].should == 19
+    @trac.open_ticket.should == "Ticket available #19: Problems with method_missing"
+    @trac.open_ticket.should == "Ticket available #19: Problems with method_missing"
     @trac.assign_ticket(19, "alloy")
-    @trac.open_ticket[:id].should == 47
-    @trac.open_ticket[:id].should == 47
+    @trac.open_ticket.should == "Ticket available #47: Cannot pass a :symbol directly as a named parameter"
+    @trac.open_ticket.should == "Ticket available #47: Cannot pass a :symbol directly as a named parameter"
     @trac.assign_ticket(47, "alloy")
-    @trac.open_ticket[:id].should == 81
-    @trac.open_ticket[:id].should == 81
+    @trac.open_ticket.should == "Ticket available #81: Enumerable::Enumerator seems to be broken"
+    @trac.open_ticket.should == "Ticket available #81: Enumerable::Enumerator seems to be broken"
+
+    @trac.active_tickets.each { |_, t| t[:assigned_to] = "alloy" }
+    @trac.open_ticket.should == "There are no more open tickets! \o/"
   end
 
   it "assigns a ticket to a user" do
@@ -107,7 +110,7 @@ describe "Trac" do
     @trac.ticket(19)[:marked_for_review].should == nil
   end
 
-  it "returns a list of tickets the user is working on, sorted by ID" do
+  it "returns a list of messages about tickets the user is working on, sorted by ID" do
     @trac.user("lrz").should == nil
     @trac.user("alloy").should == nil
     @trac.assign_ticket(81, "alloy")
