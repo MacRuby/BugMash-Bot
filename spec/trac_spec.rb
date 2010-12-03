@@ -100,4 +100,14 @@ describe "Trac" do
     @trac.unmark_for_review(19, "lrz").should == "Ticket #19 is un-marked for review by `lrz'."
     @trac.ticket(19)[:marked_for_review].should == nil
   end
+
+  it "returns a list of tickets the user is working on, sorted by ID" do
+    @trac.user("lrz").should == nil
+    @trac.user("alloy").should == nil
+    @trac.assign_ticket(81, "alloy")
+    @trac.assign_ticket(47, "lrz")
+    @trac.assign_ticket(19, "alloy")
+    @trac.user("lrz").should == [@trac.ticket(47)]
+    @trac.user("alloy").should == [@trac.ticket(19), @trac.ticket(81)]
+  end
 end

@@ -28,6 +28,10 @@ class Trac
     @active_tickets[id]
   end
 
+  def user(name)
+    @users[name]
+  end
+
   # Returns a ticket that nobody is working on yet, in ascending order.
   def open_ticket
     @active_tickets.keys.sort.each do |id|
@@ -41,6 +45,7 @@ class Trac
     t = ticket(id)
     t[:assigned_to] = user
     @users[user] << t
+    @users[user] = @users[user].sort_by { |x| x[:id] }
   end
 
   def resign_from_ticket(id, user)
