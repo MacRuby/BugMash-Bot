@@ -50,13 +50,16 @@ describe "Trac" do
   end
 
   it "assigns a ticket to a user" do
-    @trac.assign_ticket(19, "alloy")
+    @trac.assign_ticket(19, "alloy").should == "Ticket #19 is now assigned to `alloy'."
     @trac.ticket(19)[:assigned_to].should == "alloy"
 
-    @trac.assign_ticket(47, "alloy")
+    @trac.assign_ticket(47, "alloy").should == "Ticket #47 is now assigned to `alloy'."
     @trac.ticket(47)[:assigned_to].should == "alloy"
 
-    @trac.users["alloy"].should == [@trac.ticket(19), @trac.ticket(47)]
+    @trac.user("alloy").should == [@trac.ticket(19), @trac.ticket(47)]
+
+    @trac.assign_ticket(19, "lrz").should == "Ticket #19 can't be assigned to `lrz', as it is already assigned to `alloy'."
+    @trac.assign_ticket(19, "alloy").should == "Ticket #19 is already assigned to `alloy'."
   end
 
   it "resigns a user from a ticket" do

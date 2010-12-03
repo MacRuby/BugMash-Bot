@@ -43,9 +43,18 @@ class Trac
   def assign_ticket(id, user)
     @users[user] ||= []
     t = ticket(id)
-    t[:assigned_to] = user
-    @users[user] << t
-    @users[user] = @users[user].sort_by { |x| x[:id] }
+    if assigned_to = t[:assigned_to]
+      if assigned_to == user
+        "Ticket ##{id} is already assigned to `#{user}'."
+      else
+        "Ticket ##{id} can't be assigned to `#{user}', as it is already assigned to `#{assigned_to}'."
+      end
+    else
+      t[:assigned_to] = user
+      @users[user] << t
+      @users[user] = @users[user].sort_by { |x| x[:id] }
+      "Ticket ##{id} is now assigned to `#{user}'."
+    end
   end
 
   def resign_from_ticket(id, user)
