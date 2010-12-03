@@ -1,3 +1,6 @@
 [submodule "vendor/cinch"]
 	path = vendor/cinch
 	url = http://github.com/injekt/cinch.git
+[submodule "vendor/simple-rss"]
+	path = vendor/simple-rss
+	url = https://github.com/cardmagic/simple-rss.git
