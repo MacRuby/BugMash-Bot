@@ -10,7 +10,7 @@ require "sequel"
 
 class DB
   def self.db_path
-    db = File.expand_path('../../data/db.sqlite3', __FILE__)
+    db = File.expand_path('../../../data/db.sqlite3', __FILE__)
   end
 
   def self.connection
@@ -18,7 +18,6 @@ class DB
   end
 
   def self.create!
-    puts "CREATE #{db_path}"
     connection.create_table :users do
       primary_key :id
       String :name
@@ -80,7 +79,7 @@ class DB
   OPEN_TICKETS_RSS_FEED = URI.parse("http://www.macruby.org/trac/query?status=new&status=reopened&format=rss&order=priority&col=id&col=summary&col=status&col=time&milestone=%21MacRuby+1.0&milestone=%21MacRuby+Later")
 
   def self.raw_open_tickets_feed
-    Net::HTTP.get(ACTIVE_TICKETS_RSS_FEED)
+    Net::HTTP.get(OPEN_TICKETS_RSS_FEED)
   rescue Exception => e
     # obviously this is a bad thing to do, but I really don't want the bot to break this weekend due to HTTP problems...
     puts "[!] FETCHING THE MACRUBY TICKET FEED FAILED DUE TO: #{e.message}\n\t#{e.backtrace.join("\n\t")}"
