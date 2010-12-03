@@ -161,9 +161,9 @@ class Trac
       assigned_to = ticket[:assigned_to]
       if assigned_to == user
         ticket[:marked_for_review] = nil
-        "Ticket ##{id} is un-marked for review by `#{assigned_to}'."
+        "Ticket ##{id} is unmarked for review by `#{assigned_to}'."
       else
-        "Ticket ##{id} can't be un-marked for review by `#{user}', as it is assigned to `#{assigned_to}'."
+        "Ticket ##{id} can't be unmarked for review by `#{user}', as it is assigned to `#{assigned_to}'."
       end
     else
       "Ticket ##{id} isn't marked for review."

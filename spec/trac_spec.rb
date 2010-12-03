@@ -108,10 +108,10 @@ describe "Trac" do
     @trac.assign_ticket(19, "lrz")
     @trac.mark_for_review(19, "lrz")
 
-    @trac.unmark_for_review(19, "alloy").should == "Ticket #19 can't be un-marked for review by `alloy', as it is assigned to `lrz'."
+    @trac.unmark_for_review(19, "alloy").should == "Ticket #19 can't be unmarked for review by `alloy', as it is assigned to `lrz'."
     @trac.ticket(19)[:marked_for_review].should == true
 
-    @trac.unmark_for_review("19", "lrz").should == "Ticket #19 is un-marked for review by `lrz'."
+    @trac.unmark_for_review("19", "lrz").should == "Ticket #19 is unmarked for review by `lrz'."
     @trac.ticket(19)[:marked_for_review].should == nil
   end
 
