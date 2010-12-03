@@ -1,0 +1,3 @@
+[submodule "vendor/cinch"]
+	path = vendor/cinch
+	url = http://github.com/injekt/cinch.git
