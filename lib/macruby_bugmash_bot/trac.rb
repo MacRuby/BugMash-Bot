@@ -5,8 +5,13 @@ require "cgi"
 
 class Trac
   ACTIVE_TICKETS_RSS_FEED = URI.parse("http://www.macruby.org/trac/query?status=new&status=reopened&format=rss&col=id&col=summary&col=status&col=time&order=priority&max=1000")
+
   def self.raw_active_tickets_feed
     Net::HTTP.get(ACTIVE_TICKETS_RSS_FEED)
+  rescue Exception => e
+    # obviously this is a bad thing to do, but I really don't want the bot to break this weekend due to HTTP problems...
+    puts "[!] FETCHING THE MACRUBY TICKET FEED FAILED DUE TO: #{e.message}\n\t#{e.backtrace.join("\n\t")}"
+    return nil
   end
 
   # Defines an instance method that takes: ID, ticket, user
@@ -34,14 +39,8 @@ class Trac
   end
 
   def load_tickets!
-    rss = nil
-    begin
-      rss = SimpleRSS.parse(self.class.raw_active_tickets_feed)
-      # obviously this is a bad thing to do, but I really don't want the bot to break this weekend due to HTTP problems...
-    rescue Exception => e
-      puts "[!] FETCHING THE MACRUBY TICKET FEED FAILED DUE TO: #{e.message}\n\t#{e.backtrace.join("\n\t")}"
-    end
-    if rss
+    if raw_feed = self.class.raw_active_tickets_feed
+      rss = SimpleRSS.parse(raw_feed)
       @active_tickets = rss.entries.inject({}) do |h, entry|
         id = File.basename(entry[:link]).to_i
         h[id] = { :id => id, :link => entry[:link], :summary => CGI.unescapeHTML(entry[:title]) }
