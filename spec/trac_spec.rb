@@ -43,6 +43,10 @@ describe "Trac" do
     @trac.ticket(105)[:summary].should == "#105: BridgeSupport can't convert KCGSessionEventTap as an argument for CGEventTapCreate"
   end
 
+  it "returns info about a ticket" do
+    @trac.ticket_info("19", "alloy").should == "#19: Problems with method_missing (http://www.macruby.org/trac/ticket/19)"
+  end
+
   it "returns a ticket that nobody is working on yet, in ascending ID order" do
     @trac.assign_ticket("19", "alloy")
     100.times do

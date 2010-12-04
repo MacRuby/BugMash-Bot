@@ -14,6 +14,7 @@ bot = Cinch::Bot.new do
   end
 
   HELP = [
+    "‘#<id>’ Get info about a ticket.",
     "‘!gimme’ This command will tell you of a single ticket that is available.",
     "‘!work <id>’ This command tells the bot that you are now working on a ticket.",
     "‘!stop <id>’ This command tells the bot that you are no longer working on a ticket.",
@@ -30,6 +31,10 @@ bot = Cinch::Bot.new do
 
   on :channel, "!gimme" do |m|
     m.reply @trac.open_ticket
+  end
+
+  on :channel, /^#(\d+)/ do |m, id|
+    m.reply @trac.ticket_info(id, m.user.nick)
   end
 
   on :channel, /^!work (\d+)/ do |m, id|

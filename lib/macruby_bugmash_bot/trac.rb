@@ -57,6 +57,10 @@ class Trac
     end
   end
 
+  define_ticket_method :ticket_info do |_, ticket, __|
+    ticket_message(ticket)
+  end
+
   define_ticket_method :assign_ticket do |id, ticket, user|
     if assigned_to = DB.ticket_user(id)
       if assigned_to[:name] == user
