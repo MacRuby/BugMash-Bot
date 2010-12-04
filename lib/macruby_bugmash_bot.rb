@@ -37,23 +37,23 @@ bot = Cinch::Bot.new do
     m.reply @trac.ticket_info(id, m.user.nick)
   end
 
-  on :channel, /^!work (\d+)/ do |m, id|
+  on :channel, /^!work #?(\d+)/ do |m, id|
     m.reply @trac.assign_ticket(id, m.user.nick)
   end
 
-  on :channel, /^!stop (\d+)/ do |m, id|
+  on :channel, /^!stop #?(\d+)/ do |m, id|
     m.reply @trac.resign_from_ticket(id, m.user.nick)
   end
 
-  on :channel, /^!status (\d+)/ do |m, id|
+  on :channel, /^!status #?(\d+)/ do |m, id|
     m.reply @trac.ticket_status(id, m.user.nick)
   end
 
-  on :channel, /^!review (\d+)/ do |m, id|
+  on :channel, /^!review #?(\d+)/ do |m, id|
     m.reply @trac.mark_for_review(id, m.user.nick)
   end
 
-  on :channel, /^!unreview (\d+)/ do |m, id|
+  on :channel, /^!unreview #?(\d+)/ do |m, id|
     m.reply @trac.unmark_for_review(id, m.user.nick)
   end
 
