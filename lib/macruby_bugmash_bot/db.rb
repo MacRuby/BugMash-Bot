@@ -73,7 +73,7 @@ class DB
   end
 
   def self.random_open_ticket
-    t = tickets.filter(:assigned_to => nil).all
+    t = tickets.filter(:assigned_to => nil, :closed => false).all
     unless t.empty?
       index = rand(t.size)
       t[index]
