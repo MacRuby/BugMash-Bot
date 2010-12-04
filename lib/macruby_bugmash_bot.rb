@@ -29,6 +29,11 @@ bot = Cinch::Bot.new do
     HELP.each { |msg| m.user.send(msg) }
   end
 
+  # TODO move this out
+  on :channel, "!total" do |m|
+    m.reply "There are a total of #{DB.tickets.filter(:closed => false).count} open tickets."
+  end
+
   on :channel, "!gimme" do |m|
     m.reply @trac.open_ticket
   end
