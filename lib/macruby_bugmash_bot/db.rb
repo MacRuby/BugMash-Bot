@@ -80,7 +80,7 @@ class DB
     end
   end
 
-  OPEN_TICKETS_RSS_FEED = URI.parse("http://www.macruby.org/trac/query?status=new&status=reopened&format=rss&order=priority&col=id&col=summary&col=status&col=time&milestone=%21MacRuby+1.0&milestone=%21MacRuby+Later")
+  OPEN_TICKETS_RSS_FEED = URI.parse("http://www.macruby.org/trac/query?status=new&status=reopened&max=1000&format=rss&order=priority&col=id&col=summary&col=status&col=time&milestone=%21MacRuby+1.0&milestone=%21MacRuby+Later")
 
   def self.raw_open_tickets_feed
     Net::HTTP.get(OPEN_TICKETS_RSS_FEED)
@@ -102,7 +102,9 @@ class DB
       rss.entries.each do |entry|
         id = File.basename(entry[:link]).to_i
         seen << id
-        unless tickets.filter(:id => id).first
+        if tickets.filter(:id => id).first
+          tickets.filter(:id => id).update(:closed => false)
+        else
           tickets.insert(:id => id, :link => entry[:link], :summary => CGI.unescapeHTML(entry[:title]), :marked_for_review => false, :closed => false)
         end
       end
